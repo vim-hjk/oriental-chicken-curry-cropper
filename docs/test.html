@@ -26,6 +26,7 @@
     }
   </style>
 </head>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <body>
   <div class="container">
     <h1>Upload cropped image to server</h1>
@@ -126,13 +127,24 @@
           });
           initialAvatarURL = avatar.src;
           avatar.src = canvas.toDataURL();
+          console.log('>> formData >> ', avatar);
           $progress.show();
           $alert.removeClass('alert-success alert-warning');
           canvas.toBlob(function (blob) {
-            var formData = new FormData();
-
-            formData.append('avatar', blob, 'avatar.jpg');
-            $.ajax('https://jsonplaceholder.typicode.com/posts', {
+            var file = new File([blob], "name");            
+            var formData = new FormData();            
+            formData.append('file', file);
+            console.log('>> formData >> ', file);
+            
+            axios.post('http://3.36.153.198:8080/file',
+                              formData, {headers: {'Content-Type': 'multipart/form-data'}}
+                          ).then((response) => {
+                              alert(response);
+                          }, (error) => {
+                              alert(error);
+                          });
+            /*
+            $.ajax('http://3.36.153.198:8080/file', {
               method: 'POST',
               data: formData,
               processData: false,
@@ -151,10 +163,10 @@
                     $progressBar.width(percentage).attr('aria-valuenow', percent).text(percentage);
                   }
                 };
-
+              
                 return xhr;
               },
-
+              
               success: function () {
                 $alert.show().addClass('alert-success').text('Upload success');
               },
@@ -163,15 +175,17 @@
                 avatar.src = initialAvatarURL;
                 $alert.show().addClass('alert-warning').text('Upload error');
               },
-
+              
               complete: function () {
                 $progress.hide();
               },
             });
+            */
           });
         }
       });
     });
+  
   </script>
 </body>
 </html>
